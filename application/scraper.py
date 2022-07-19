@@ -1,13 +1,20 @@
 from bs4 import BeautifulSoup as bs
+import re
 import requests
 
-def runScraper(userInput):
-    scraper = initializeFirstScraper(userInput)
-    urlList = getUrls(scraper, userInput)
-    getPrices(urlList)
+def formatUserInput(text):
+    formattedText = text.replace("", "+")
+    return formattedText
+
+def runScraper(productInput, priceInput):
+    scraper = initializeFirstScraper(formatUserInput(productInput))
+    urlList = getUrls(scraper, productInput)
+    pricesList = getPrices(urlList)
+    comparePrices(pricesList, priceInput)
 
 def initializeFirstScraper(userInput):
-    response = requests.get('https://www.google.com/search?q=' + userInput)
+
+    response = requests.get('https://www.ebay.com/sch/i.html?_nkw=' + userInput)
     soup = bs(response.text, 'html.parser')
     return soup
 
@@ -29,9 +36,11 @@ def getPrices(urls):
         try:
             if "http" in url:
                 scraper=initializeFollowingScraper(url[7:])
-                pricesOnPage = scraper.find_all("div", class_ ="price")
-                print(url[7:])
+                pricesOnPage = re.findall("$", scraper)
                 print(pricesOnPage)
         except Exception as e:
             print(e)
+
+def comparePrices(pricesList):
+    pass
             
